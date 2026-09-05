@@ -1,0 +1,372 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap");
+
+:root {
+  --aksen: #6366f1;
+  --aksen-hover: #4f46e5;
+  --sukses: #10b981;
+  --bahaya: #ef4444;
+  --peringatan: #f59e0b;
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --teks-gelap: #0f172a;
+  --teks-terang: #64748b;
+  --border: #e2e8f0;
+  --bayangan: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  transition: 0.2s;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--teks-gelap);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+/* Sidebar */
+nav {
+  width: 280px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1.5rem;
+}
+.brand {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--aksen);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.clock-box {
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+#digitalClock {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--aksen);
+}
+.nav-link {
+  padding: 12px 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--teks-terang);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 5px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-link:hover {
+  background: #f1f5f9;
+  color: var(--aksen);
+}
+.nav-link.active {
+  background: #eef2ff;
+  color: var(--aksen);
+}
+
+/* Main Content */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  gap: 2rem;
+  overflow: hidden;
+}
+.search-wrapper {
+  position: relative;
+  width: 550px;
+}
+#searchInput {
+  width: 100%;
+  padding: 16px 20px 16px 50px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  outline: none;
+  box-shadow: var(--bayangan);
+}
+#searchResults {
+  position: absolute;
+  top: 65px;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  z-index: 1000;
+  box-shadow: var(--bayangan);
+  display: none;
+  padding: 8px;
+}
+.result-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.result-item:hover {
+  background: #f1f5f9;
+  transform: translateX(5px);
+}
+
+.content-grid {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  overflow: hidden;
+}
+.cart-card {
+  flex: 1;
+  background: var(--panel);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--bayangan);
+}
+.checkout-card {
+  width: 420px;
+  background: var(--teks-gelap);
+  color: white;
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Table UI */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--teks-terang);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 1rem;
+  border-bottom: 1px solid #f8fafc;
+  font-weight: 600;
+}
+
+/* Modals */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(8px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 24px;
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  color: var(--teks-gelap);
+}
+.btn-pay {
+  background: var(--aksen);
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.nominal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+.btn-nominal {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+.badge-sukses {
+  background: #dcfce7;
+  color: #166534;
+}
+.badge-bahaya {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.badge-warning {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Struk Preview Style */
+#previewArea {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  background: #fff;
+  color: #000;
+  padding: 20px;
+  border: 1px dashed #ccc;
+  width: 300px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
+/* CSS Khusus untuk Mode Cetak */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #modalCetak,
+  #modalCetak .modal-content,
+  #previewArea,
+  #previewArea * {
+    visibility: visible;
+  }
+
+  /* Sembunyikan tombol dan teks instruksi */
+  #modalCetak h2,
+  #modalCetak p,
+  #btnBatalCetak,
+  #btnProsesCetak {
+    display: none !important;
+  }
+
+  /* PENGATURAN JARAK (MARGIN/PADDING) */
+  #modalCetak .modal-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px; /* <--- Tambahkan ini untuk jarak luar keseluruhan */
+    border: none;
+    box-shadow: none;
+    background: white;
+  }
+
+  #previewArea {
+    /* Memberikan jarak spesifik di kiri, kanan, atas, bawah */
+    padding: 10px 15px;
+    margin: 0;
+    width: 100%;
+  }
+
+  /* Mengatur ukuran kertas (opsional, sesuaikan jika pakai thermal 58mm/80mm) */
+  @page {
+    margin: 0; /* Margin browser dinolkan agar padding CSS kita yang kontrol */
+  }
+}
+
+/* ========================================
+   DARK MODE
+   Diaktifkan via body.dark-mode
+   ======================================== */
+body.dark-mode {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --teks-gelap: #f1f5f9;
+  --teks-terang: #94a3b8;
+  --border: #334155;
+  --bayangan: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+body.dark-mode nav {
+  background: #1e293b;
+  border-right-color: #334155;
+}
+body.dark-mode .clock-box {
+  background: #0f172a;
+  border-color: #334155;
+}
+body.dark-mode .nav-link:hover {
+  background: #334155;
+}
+body.dark-mode .nav-link.active {
+  background: rgba(99, 102, 241, 0.15);
+}
+body.dark-mode #searchInput {
+  background: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+body.dark-mode #searchResults {
+  background: #1e293b;
+  border-color: #334155;
+}
+body.dark-mode .result-item:hover {
+  background: #334155;
+}
+body.dark-mode .cart-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+body.dark-mode .checkout-card {
+  background: #0f172a;
+}
+body.dark-mode th {
+  color: #94a3b8;
+  border-bottom-color: #334155;
+}
+body.dark-mode td {
+  border-bottom-color: #1e293b;
+  color: #e2e8f0;
+}
+body.dark-mode .modal-content {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"],
+body.dark-mode input[type="date"] {
+  background: #0f172a;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+body.dark-mode .btn-nominal {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}

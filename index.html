@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;"
+    />
+    <title>KasirPro | Premium POS System</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="brand"><span>📠</span> KasirPro</div>
+      <div class="clock-box">
+        <div id="digitalClock">00:00:00</div>
+        <div id="digitalDate">...</div>
+      </div>
+      <button class="nav-link active" id="btnMenuDashboard">
+        <span>🏠</span> Dashboard
+      </button>
+      <button class="nav-link" id="btnMenuStok">
+        <span>📦</span> Stok Barang
+      </button>
+      <button class="nav-link" id="btnMenuLaporan">
+        <span>📊</span> Laporan
+      </button>
+      <button class="nav-link" id="btnMenuSetting">
+        <span>⚙️</span> Pengaturan
+      </button>
+      <button
+        class="nav-link"
+        id="btnTambahBarang"
+        style="margin-top: auto; background: var(--aksen); color: white"
+      >
+        <span>+</span> Tambah Barang
+      </button>
+    </nav>
+
+    <main>
+      <div class="search-wrapper">
+        <span
+          style="
+            position: absolute;
+            left: 20px;
+            top: 18px;
+            color: var(--teks-terang);
+          "
+          >🔍</span
+        >
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Cari nama barang..."
+          autocomplete="off"
+          autofocus
+        />
+        <div id="searchResults"></div>
+      </div>
+
+      <div class="content-grid">
+        <div class="cart-card">
+          <div
+            style="
+              padding: 1.5rem;
+              border-bottom: 1px solid var(--border);
+              display: flex;
+              justify-content: space-between;
+            "
+          >
+            <span style="font-weight: 800">🛒 Keranjang</span>
+            <button
+              id="btnBatalCart"
+              style="
+                color: var(--bahaya);
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-weight: 700;
+              "
+            >
+              Kosongkan
+            </button>
+          </div>
+          <div style="flex: 1; overflow-y: auto">
+            <table id="cartTable">
+              <thead>
+                <tr>
+                  <th>Produk</th>
+                  <th>Harga</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="checkout-card">
+          <h2 style="margin: 0">Total Tagihan</h2>
+          <div
+            id="grandTotalDisplay"
+            style="font-size: 2.5rem; font-weight: 800; margin: 1rem 0"
+          >
+            Rp 0
+          </div>
+          <div
+            style="
+              background: rgba(255, 255, 255, 0.05);
+              padding: 1.2rem;
+              border-radius: 20px;
+              margin-top: auto;
+            "
+          >
+            <label style="font-size: 0.7rem; font-weight: 800; color: #94a3b8"
+              >PEMBAYARAN (F8)</label
+            >
+            <input
+              type="number"
+              id="inputBayar"
+              style="
+                width: 100%;
+                padding: 12px;
+                border-radius: 12px;
+                border: none;
+                font-size: 1.5rem;
+                font-weight: 800;
+                margin-top: 8px;
+                text-align: right;
+              "
+              placeholder="0"
+            />
+            <div class="nominal-grid">
+              <button class="btn-nominal btn-quick-cash" data-amount="5000">
+                5.000
+              </button>
+              <button class="btn-nominal btn-quick-cash" data-amount="10000">
+                10.000
+              </button>
+              <button class="btn-nominal btn-quick-cash" data-amount="20000">
+                20.000
+              </button>
+              <button class="btn-nominal btn-quick-cash" data-amount="50000">
+                50.000
+              </button>
+              <button class="btn-nominal btn-quick-cash" data-amount="100000">
+                100.000
+              </button>
+              <button class="btn-nominal" id="btnUangPas">Uang Pas</button>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-top: 1.5rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-top: 1rem;
+              "
+            >
+              <span style="font-size: 0.8rem; font-weight: 600; color: #94a3b8"
+                >KEMBALIAN</span
+              >
+              <span
+                id="displayKembali"
+                style="
+                  font-size: 1.5rem;
+                  font-weight: 800;
+                  color: var(--sukses);
+                "
+                >Rp 0</span
+              >
+            </div>
+          </div>
+          <button class="btn-pay" id="btnBayar" style="margin-top: 1.5rem">
+            BAYAR SEKARANG (ENTER)
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <div id="modalLaporan" class="modal">
+      <div class="modal-content" style="max-width: 700px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+          "
+        >
+          <h2>📊 Laporan Penjualan</h2>
+          <button
+            id="btnEksporLaporan"
+            class="badge badge-sukses"
+            style="border: none; cursor: pointer; padding: 8px 15px"
+          >
+            Ekspor CSV
+          </button>
+        </div>
+
+        <div
+          style="
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+          "
+        >
+          <label style="font-size: 0.8rem; font-weight: 700"
+            >Filter Tanggal:</label
+          >
+          <input
+            type="date"
+            id="filterTglAwal"
+            style="
+              padding: 8px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+              font-size: 0.8rem;
+              flex: 1;
+            "
+          />
+          <span style="font-size: 0.8rem; font-weight: bold">-</span>
+          <input
+            type="date"
+            id="filterTglAkhir"
+            style="
+              padding: 8px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+              font-size: 0.8rem;
+              flex: 1;
+            "
+          />
+          <button
+            id="btnFilterLaporan"
+            style="
+              padding: 8px 15px;
+              border-radius: 8px;
+              border: none;
+              background: var(--aksen);
+              color: white;
+              cursor: pointer;
+              font-weight: 700;
+            "
+          >
+            Cari
+          </button>
+          <button
+            id="btnResetFilter"
+            style="
+              padding: 8px 15px;
+              border-radius: 8px;
+              border: 1px solid var(--bahaya);
+              background: white;
+              cursor: pointer;
+              font-weight: 700;
+              color: var(--bahaya);
+            "
+          >
+            Reset
+          </button>
+        </div>
+
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+          "
+        >
+          <div
+            style="
+              background: #f8fafc;
+              padding: 12px;
+              border-radius: 12px;
+              border-left: 4px solid var(--aksen);
+            "
+          >
+            <div
+              id="labelOmzetHariIni"
+              style="font-size: 0.65rem; color: var(--teks-terang)"
+            >
+              OMZET HARI INI
+            </div>
+            <div id="omzetHariIni" style="font-size: 1.1rem; font-weight: 800">
+              Rp 0
+            </div>
+          </div>
+          <div
+            style="
+              background: #eef2ff;
+              padding: 12px;
+              border-radius: 12px;
+              border-left: 4px solid var(--aksen-hover);
+            "
+          >
+            <div style="font-size: 0.65rem; color: var(--aksen-hover)">
+              OMZET BULAN INI
+            </div>
+            <div
+              id="omzetBulanIni"
+              style="
+                font-size: 1.1rem;
+                font-weight: 800;
+                color: var(--aksen-hover);
+              "
+            >
+              Rp 0
+            </div>
+          </div>
+          <div
+            style="
+              background: #f0fdf4;
+              padding: 12px;
+              border-radius: 12px;
+              border-left: 4px solid var(--sukses);
+            "
+          >
+            <div style="font-size: 0.65rem; color: var(--sukses)">
+              TOTAL TRANSAKSI
+            </div>
+            <div
+              id="totalTransaksiCount"
+              style="font-size: 1.1rem; font-weight: 800; color: var(--sukses)"
+            >
+              0
+            </div>
+          </div>
+        </div>
+        <div
+          style="
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+          "
+        >
+          <table id="riwayatTable">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Total Belanja</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button
+          id="btnTutupLaporan"
+          class="btn-pay"
+          style="
+            margin-top: 15px;
+            background: #f1f5f9;
+            color: var(--teks-gelap);
+          "
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Detail Transaksi (BARU) -->
+    <div id="modalDetailTransaksi" class="modal">
+      <div class="modal-content" style="max-width: 550px">
+        <h2>📋 Detail Item Transaksi</h2>
+        <div
+          style="
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-top: 15px;
+          "
+        >
+          <table id="detailTransaksiTable">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th>Harga</th>
+                <th>Qty</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button
+          id="btnTutupDetailTransaksi"
+          class="btn-pay"
+          style="
+            margin-top: 15px;
+            background: #f1f5f9;
+            color: var(--teks-gelap);
+          "
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+
+    <div id="modalSetting" class="modal">
+      <div class="modal-content" style="max-width: 450px">
+        <h2>⚙️ Pengaturan Sistem</h2>
+
+        <!-- Dark Mode Toggle -->
+        <div
+          style="
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div>
+            <div style="font-weight: 700">Tampilan</div>
+            <div style="font-size: 0.75rem; color: var(--teks-terang)">
+              Ubah mode terang/gelap
+            </div>
+          </div>
+          <button
+            id="btnToggleDark"
+            style="
+              padding: 8px 16px;
+              border-radius: 10px;
+              border: 1px solid var(--border);
+              background: white;
+              cursor: pointer;
+              font-weight: 600;
+              font-size: 0.85rem;
+            "
+          >
+            🌙 Mode Gelap
+          </button>
+        </div>
+
+        <!-- Pengaturan Toko -->
+        <div
+          style="
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-top: 15px;
+          "
+        >
+          <h4 style="margin: 0 0 15px 0">🏪 Identitas Toko</h4>
+          <div style="margin-bottom: 10px">
+            <label
+              style="
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--teks-terang);
+              "
+              >NAMA TOKO</label
+            >
+            <input
+              type="text"
+              id="inTokoNama"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-top: 4px;
+              "
+            />
+          </div>
+          <div style="margin-bottom: 10px">
+            <label
+              style="
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--teks-terang);
+              "
+              >ALAMAT</label
+            >
+            <input
+              type="text"
+              id="inTokoAlamat"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-top: 4px;
+              "
+            />
+          </div>
+          <div style="margin-bottom: 15px">
+            <label
+              style="
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--teks-terang);
+              "
+              >KODE POS</label
+            >
+            <input
+              type="text"
+              id="inTokoKodePos"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-top: 4px;
+              "
+            />
+          </div>
+          <button
+            id="btnSimpanToko"
+            class="btn-pay"
+            style="background: var(--sukses)"
+          >
+            💾 Simpan Identitas Toko
+          </button>
+        </div>
+
+        <!-- Shortcut Info -->
+        <div
+          style="
+            background: #eff6ff;
+            padding: 15px 20px;
+            border-radius: 16px;
+            border: 1px solid #bfdbfe;
+            margin-top: 15px;
+          "
+        >
+          <h4 style="margin: 0 0 8px 0; color: #1d4ed8">⌨️ Keyboard Shortcut</h4>
+          <div style="font-size: 0.8rem; color: #1e40af; line-height: 1.8">
+            <b>F8</b> — Fokus input pembayaran<br />
+            <b>Enter</b> — Proses pembayaran<br />
+            <b>Escape</b> — Tutup modal
+          </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div
+          style="
+            background: #fff1f2;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #fecdd3;
+            margin-top: 15px;
+          "
+        >
+          <h4 style="margin: 0 0 10px 0; color: #be123c">Zona Bahaya</h4>
+          <p style="font-size: 0.8rem; color: #9f1239">
+            Menghapus database akan membersihkan seluruh produk dan riwayat
+            transaksi.
+          </p>
+          <button
+            id="btnResetData"
+            style="
+              background: #e11d48;
+              color: white;
+              border: none;
+              padding: 12px;
+              border-radius: 10px;
+              width: 100%;
+              font-weight: 700;
+              cursor: pointer;
+              margin-top: 10px;
+            "
+          >
+            Reset Database
+          </button>
+        </div>
+        <button
+          id="btnTutupSetting"
+          class="btn-pay"
+          style="
+            margin-top: 20px;
+            background: #f1f5f9;
+            color: var(--teks-gelap);
+          "
+        >
+          Kembali
+        </button>
+      </div>
+    </div>
+
+    <div id="modalKonfirmasi" class="modal">
+      <div
+        class="modal-content"
+        style="
+          max-width: 380px;
+          text-align: center;
+          border: 2px solid var(--bahaya);
+        "
+      >
+        <div style="font-size: 4rem; margin-bottom: 1rem">⚠️</div>
+        <h2 style="color: var(--bahaya); margin-bottom: 0.5rem">
+          Konfirmasi Hapus
+        </h2>
+        <p
+          style="
+            color: var(--teks-terang);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+          "
+        >
+          Apakah Anda yakin ingin menghapus <b>SELURUH DATA</b>? Tindakan ini
+          permanen dan tidak bisa dibatalkan.
+        </p>
+        <div style="display: flex; gap: 10px">
+          <button
+            id="btnBatalHapus"
+            style="
+              flex: 1;
+              padding: 12px;
+              border-radius: 12px;
+              border: 1px solid var(--border);
+              background: #f1f5f9;
+              cursor: pointer;
+              font-weight: 700;
+            "
+          >
+            Batal
+          </button>
+          <button
+            id="btnProsesHapus"
+            style="
+              flex: 1;
+              padding: 12px;
+              border-radius: 12px;
+              border: none;
+              background: var(--bahaya);
+              color: white;
+              cursor: pointer;
+              font-weight: 700;
+            "
+          >
+            Ya, Hapus Semua
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalProduk" class="modal">
+      <div class="modal-content" style="max-width: 400px">
+        <h2 id="modalProdukTitle">Data Produk</h2>
+        <input type="hidden" id="editId" />
+        <div style="margin-bottom: 1rem">
+          <label>Nama Barang</label>
+          <input
+            type="text"
+            id="inNama"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+            "
+          />
+        </div>
+        <div style="margin-bottom: 1rem">
+          <label>Harga (Rp)</label>
+          <input
+            type="number"
+            id="inHarga"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+            "
+          />
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <label>Stok</label>
+          <input
+            type="number"
+            id="inStok"
+            style="
+              width: 100%;
+              padding: 10px;
+              border-radius: 8px;
+              border: 1px solid var(--border);
+            "
+          />
+        </div>
+        <button class="btn-pay" id="btnSimpanBarang">Simpan Produk</button>
+        <button
+          id="btnBatalProduk"
+          style="
+            width: 100%;
+            margin-top: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+          "
+        >
+          Batal
+        </button>
+      </div>
+    </div>
+
+    <div id="modalStok" class="modal">
+      <div class="modal-content" style="max-width: 850px">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            align-items: center;
+          "
+        >
+          <h2 style="margin: 0">📦 Manajemen Stok</h2>
+          <div style="position: relative; width: 300px">
+            <span
+              style="
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                font-size: 0.8rem;
+              "
+              >🔍</span
+            >
+            <input
+              type="text"
+              id="searchStokInput"
+              placeholder="Cari barang di stok..."
+              style="
+                width: 100%;
+                padding: 8px 10px 8px 30px;
+                border-radius: 10px;
+                border: 1px solid var(--border);
+                outline: none;
+              "
+            />
+          </div>
+          <button
+            id="closeStokHeader"
+            style="
+              border: none;
+              background: none;
+              font-size: 1.5rem;
+              cursor: pointer;
+            "
+          >
+            ✕
+          </button>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto">
+          <table id="stokTable">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th>Harga</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalStokPreview" class="modal">
+      <div class="modal-content" style="max-width: 400px; text-align: center">
+        <div
+          id="previewArea"
+          style="margin-bottom: 20px; text-align: left"
+        ></div>
+        <div style="display: flex; gap: 10px">
+          <button
+            id="btnBatalCetak"
+            style="
+              flex: 1;
+              padding: 12px;
+              border-radius: 12px;
+              border: 1px solid var(--border);
+              background: #f1f5f9;
+              cursor: pointer;
+              font-weight: 700;
+            "
+          >
+            Tidak
+          </button>
+          <button
+            id="btnProsesCetak"
+            style="
+              flex: 1;
+              padding: 12px;
+              border-radius: 12px;
+              border: none;
+              background: var(--aksen);
+              color: white;
+              cursor: pointer;
+              font-weight: 700;
+            "
+          >
+            Cetak (Print)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalNotif" class="modal">
+      <div class="modal-content" style="max-width: 350px; text-align: center">
+        <div id="notifIcon" style="font-size: 4rem; margin-bottom: 1rem">
+          ✨
+        </div>
+        <h2 id="notifTitle">Berhasil</h2>
+        <p id="notifMessage"></p>
+        <button class="btn-pay" id="btnTutupNotif">Lanjut</button>
+      </div>
+    </div>
+
+    <!-- JS Modules: namespace → modul → orchestrator -->
+    <script src="renderer.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/product.js"></script>
+    <script src="js/report.js"></script>
+  </body>
+</html>

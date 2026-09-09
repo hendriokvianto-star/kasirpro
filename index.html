@@ -35,6 +35,16 @@
       >
         <span>+</span> Tambah Barang
       </button>
+
+      <!-- Active User Profile Box -->
+      <div class="user-profile-box" id="activeUserBox">
+        <div class="user-avatar">👤</div>
+        <div class="user-details">
+          <div id="activeUserName" class="user-name">Memuat...</div>
+          <div id="activeUserRole" class="user-role badge badge-sukses">KASIR</div>
+        </div>
+        <button id="btnLogout" class="btn-logout" title="Keluar dari sesi (Logout)">🚪</button>
+      </div>
     </nav>
 
     <main>
@@ -408,7 +418,31 @@
 
     <div id="modalSetting" class="modal">
       <div class="modal-content" style="max-width: 450px">
-        <h2>⚙️ Pengaturan Sistem</h2>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+          "
+        >
+          <h2 style="margin: 0">⚙️ Pengaturan Sistem</h2>
+          <button
+            id="btnCloseSettingTop"
+            style="
+              background: none;
+              border: none;
+              font-size: 1.25rem;
+              cursor: pointer;
+              color: var(--teks-terang);
+              padding: 4px 8px;
+              border-radius: 8px;
+            "
+            title="Tutup Pengaturan"
+          >
+            ✕
+          </button>
+        </div>
 
         <!-- Dark Mode Toggle -->
         <div
@@ -544,6 +578,92 @@
             <b>Enter</b> — Proses pembayaran<br />
             <b>Escape</b> — Tutup modal
           </div>
+        </div>
+
+        <!-- Keamanan Akun / Ganti Password -->
+        <div
+          style="
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-top: 15px;
+          "
+        >
+          <h4 style="margin: 0 0 15px 0">🔑 Keamanan Akun</h4>
+          <div style="margin-bottom: 10px">
+            <label
+              style="
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--teks-terang);
+              "
+              >PASSWORD LAMA</label
+            >
+            <input
+              type="password"
+              id="inPassLama"
+              placeholder="Masukkan password saat ini"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-top: 4px;
+              "
+            />
+          </div>
+          <div style="margin-bottom: 10px">
+            <label
+              style="
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--teks-terang);
+              "
+              >PASSWORD BARU</label
+            >
+            <input
+              type="password"
+              id="inPassBaru"
+              placeholder="Minimal 5 karakter"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-top: 4px;
+              "
+            />
+          </div>
+          <div style="margin-bottom: 15px">
+            <label
+              style="
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--teks-terang);
+              "
+              >KONFIRMASI PASSWORD BARU</label
+            >
+            <input
+              type="password"
+              id="inPassKonfirmasi"
+              placeholder="Ulangi password baru"
+              style="
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-top: 4px;
+              "
+            />
+          </div>
+          <button
+            id="btnSimpanPassword"
+            class="btn-pay"
+            style="background: var(--aksen)"
+          >
+            Update Password
+          </button>
         </div>
 
         <!-- Danger Zone -->
@@ -821,8 +941,67 @@
       </div>
     </div>
 
+    <!-- LAYAR LOGIN SEBELUM MASUK APLIKASI -->
+    <div id="loginOverlay" class="login-overlay">
+      <div class="login-card">
+        <div class="login-header">
+          <div class="login-logo">📠</div>
+          <h1>KasirPro</h1>
+          <p>Masuk dengan akun kasir atau administrator</p>
+        </div>
+
+        <form id="formLogin" autocomplete="off">
+          <div id="loginErrorMsg" class="login-error-msg" style="display: none"></div>
+
+          <div class="form-group">
+            <label for="loginUsername">Username</label>
+            <div class="input-with-icon">
+              <span class="field-icon">👤</span>
+              <input
+                type="text"
+                id="loginUsername"
+                placeholder="Masukkan username"
+                required
+                autofocus
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <div class="input-with-icon">
+              <span class="field-icon">🔒</span>
+              <input
+                type="password"
+                id="loginPassword"
+                placeholder="Masukkan password"
+                required
+              />
+              <button
+                type="button"
+                id="btnToggleShowPass"
+                class="btn-toggle-show-pass"
+                title="Tampilkan / Sembunyikan Password"
+              >
+                👁️
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="loginBtnSubmit" class="btn-pay" style="margin-top: 1.5rem">
+            Masuk ke Sistem
+          </button>
+        </form>
+
+        <div class="login-footer">
+          <small>Akun default: <b>admin</b> / <b>admin123</b></small>
+        </div>
+      </div>
+    </div>
+
     <!-- JS Modules: namespace → modul → orchestrator -->
     <script src="renderer.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/product.js"></script>
     <script src="js/report.js"></script>

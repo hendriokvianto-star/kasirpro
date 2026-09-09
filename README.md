@@ -17,8 +17,8 @@ Aplikasi **Point of Sale (POS)** desktop ringan untuk toko sembako dan retail ke
 
 ## ✨ Fitur Utama
 
-| Fitur | Keterangan |
-|-------|------------|
+| 🔑 **Autentikasi & Sesi Login** | Layar login sebelum masuk sistem, enkripsi hash SHA-256, profil user aktif di sidebar, logout aman, dan fitur ganti password |
+| ⚡ **Transaksi Atomik (ACID)** | Pembayaran dibungkus SQLite transaction (`BEGIN`/`COMMIT`/`ROLLBACK`) mencegah inkonsistensi stok |
 | 🔍 **Pencarian Produk Cepat** | Cari barang secara real-time dari katalog, langsung tambahkan ke keranjang |
 | 🛒 **Keranjang Belanja** | Kelola item, ubah kuantitas, hapus item, dengan empty state informatif |
 | 💳 **Proses Pembayaran** | Input nominal, tombol cepat (5K–100K), hitung kembalian otomatis |
@@ -83,6 +83,7 @@ KasirSembako/
 ├── renderer.js          → Orchestrator (namespace, helpers, event wiring)
 │
 ├── js/                  → Modul bisnis (IIFE pattern)
+│   ├── auth.js          → Autentikasi pengguna, sesi kasir/admin, ganti password
 │   ├── cart.js          → Keranjang, pembayaran, struk, pencarian
 │   ├── product.js       → CRUD produk, manajemen stok
 │   └── report.js        → Laporan, filter tanggal, ekspor CSV
@@ -154,6 +155,15 @@ Database dibuat otomatis saat pertama kali aplikasi dijalankan. Tidak perlu setu
 ### Skema
 
 ```sql
+-- Tabel Pengguna (Autentikasi Kasir & Admin)
+CREATE TABLE pengguna (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    username     TEXT UNIQUE NOT NULL,
+    password     TEXT NOT NULL,
+    role         TEXT NOT NULL DEFAULT 'admin',
+    nama_lengkap TEXT NOT NULL
+);
+
 -- Tabel Produk
 CREATE TABLE produk (
     id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -221,12 +231,14 @@ Semua komunikasi antara renderer dan main process menggunakan IPC (Inter-Process
 
 | Channel | Parameter | Return | Keterangan |
 |---------|-----------|--------|------------|
+| `auth:login` | `{username, password}` | `{success, user?, message?}` | Verifikasi login (hash SHA-256) |
+| `auth:ganti-password` | `{id, passwordLama, passwordBaru}` | `{success, message}` | Ganti password akun aktif |
 | `db:search-produk` | `keyword: string` | `Array<{id, nama, harga, stok}>` | Cari produk (stok > 0, limit 6) |
 | `db:get-all-produk` | `keyword: string` | `Array<{id, nama, harga, stok}>` | Semua produk (untuk manajemen stok) |
 | `db:insert-produk` | `{nama, harga, stok}` | `{lastID, changes}` | Tambah produk baru |
 | `db:update-produk` | `{id, nama, harga, stok}` | `{lastID, changes}` | Edit produk |
 | `db:delete-produk` | `id: number` | `{lastID, changes}` | Hapus produk |
-| `db:proses-transaksi` | `{total, items[]}` | `{success, transaksiId}` | Simpan transaksi + detail + kurangi stok |
+| `db:proses-transaksi` | `{total, items[]}` | `{success, transaksiId}` | Simpan transaksi atomic (BEGIN/COMMIT/ROLLBACK) |
 | `db:get-laporan` | `{tglAwal?, tglAkhir?}` | `{omzet, count, riwayat[]}` | Ambil data laporan |
 | `db:get-detail-transaksi` | `transaksiId: number` | `Array<{nama_produk, harga_satuan, jumlah, subtotal}>` | Detail item per transaksi |
 | `db:get-omzet-bulan` | — | `number` | Omzet bulan berjalan |
@@ -310,7 +322,16 @@ Dark mode diaktifkan melalui class `body.dark-mode`. Semua CSS variable di-overr
 
 ## 📖 Panduan Penggunaan
 
-### 1. Dashboard (Kasir)
+### 1. Login Sistem
+
+1. Saat aplikasi dibuka, layar login akan muncul terlebih dahulu.
+2. Masukkan kredensial akun default:
+   - **Username:** `admin`
+   - **Password:** `admin123`
+3. Klik **Masuk ke Sistem** untuk membuka dashboard.
+4. Klik ikon 🚪 di samping nama profil sidebar untuk **Logout**.
+
+### 2. Dashboard (Kasir)
 
 1. Ketik nama barang di **kolom pencarian** — hasil muncul secara real-time
 2. Klik item untuk menambahkan ke **keranjang**

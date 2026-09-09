@@ -21,4 +21,8 @@ contextBridge.exposeInMainWorld("api", {
 
   // --- SISTEM ---
   resetDatabase: () => ipcRenderer.invoke("db:reset-database"),
+
+  // --- AUTH ---
+  login: (credentials) => ipcRenderer.invoke("auth:login", credentials),
+  gantiPassword: (data) => ipcRenderer.invoke("auth:ganti-password", data),
 });

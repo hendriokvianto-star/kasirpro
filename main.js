@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 const sqlite3 = require("sqlite3").verbose();
 
 // --- LOGIKA SHORTCUT OTOMATIS (SQUIRREL HANDLER) ---
@@ -44,6 +45,29 @@ function initDB() {
         FOREIGN KEY (produk_id) REFERENCES produk(id)
       )`,
     );
+    db.run(
+      `CREATE TABLE IF NOT EXISTS pengguna (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'admin',
+        nama_lengkap TEXT NOT NULL
+      )`,
+    );
+
+    // Seed default admin jika tabel pengguna kosong
+    db.get("SELECT COUNT(*) as cnt FROM pengguna", [], (err, row) => {
+      if (!err && row && row.cnt === 0) {
+        const defaultHash = crypto
+          .createHash("sha256")
+          .update("admin123")
+          .digest("hex");
+        db.run(
+          "INSERT INTO pengguna (username, password, role, nama_lengkap) VALUES (?, ?, ?, ?)",
+          ["admin", defaultHash, "admin", "Administrator"],
+        );
+      }
+    });
   });
 }
 initDB();
@@ -104,6 +128,54 @@ function createWindow() {
 
 // --- IPC HANDLERS ---
 
+// [AUTH] Login pengguna
+ipcMain.handle("auth:login", async (_event, credentials) => {
+  const { username, password } = credentials || {};
+  if (!username || !password) {
+    return { success: false, message: "Username dan password wajib diisi." };
+  }
+  const hash = crypto
+    .createHash("sha256")
+    .update(String(password))
+    .digest("hex");
+  const user = await dbGet(
+    "SELECT id, username, role, nama_lengkap FROM pengguna WHERE username = ? AND password = ?",
+    [String(username).trim(), hash],
+  );
+  if (!user) {
+    return { success: false, message: "Username atau password salah." };
+  }
+  return { success: true, user };
+});
+
+// [AUTH] Ganti password pengguna
+ipcMain.handle("auth:ganti-password", async (_event, data) => {
+  const { id, passwordLama, passwordBaru } = data || {};
+  if (!id || !passwordLama || !passwordBaru) {
+    return { success: false, message: "Data tidak lengkap." };
+  }
+  const oldHash = crypto
+    .createHash("sha256")
+    .update(String(passwordLama))
+    .digest("hex");
+  const user = await dbGet(
+    "SELECT id FROM pengguna WHERE id = ? AND password = ?",
+    [Number(id), oldHash],
+  );
+  if (!user) {
+    return { success: false, message: "Password lama tidak sesuai." };
+  }
+  const newHash = crypto
+    .createHash("sha256")
+    .update(String(passwordBaru))
+    .digest("hex");
+  await dbRun("UPDATE pengguna SET password = ? WHERE id = ?", [
+    newHash,
+    Number(id),
+  ]);
+  return { success: true, message: "Password berhasil diperbarui." };
+});
+
 // [PRODUK] Cari produk (untuk search bar — hanya stok > 0)
 ipcMain.handle("db:search-produk", async (_event, keyword) => {
   const kw = String(keyword || "");
@@ -148,34 +220,42 @@ ipcMain.handle("db:delete-produk", async (_event, id) => {
   return dbRun("DELETE FROM produk WHERE id=?", [Number(id)]);
 });
 
-// [TRANSAKSI] Proses pembayaran — simpan total + detail item
+// [TRANSAKSI] Proses pembayaran — simpan total + detail item (atomic transaction)
 ipcMain.handle("db:proses-transaksi", async (_event, data) => {
   const { total, items } = data;
-  const result = await dbRun("INSERT INTO transaksi (total) VALUES (?)", [
-    Number(total),
-  ]);
-  const transaksiId = result.lastID;
-
-  for (const item of items) {
-    // Simpan detail item
-    await dbRun(
-      "INSERT INTO detail_transaksi (transaksi_id, produk_id, nama_produk, harga_satuan, jumlah, subtotal) VALUES (?,?,?,?,?,?)",
-      [
-        transaksiId,
-        Number(item.id),
-        String(item.nama),
-        Number(item.harga),
-        Number(item.qty),
-        Number(item.subtotal),
-      ],
-    );
-    // Kurangi stok
-    await dbRun("UPDATE produk SET stok = stok - ? WHERE id = ?", [
-      Number(item.qty),
-      Number(item.id),
+  await dbRun("BEGIN TRANSACTION");
+  try {
+    const result = await dbRun("INSERT INTO transaksi (total) VALUES (?)", [
+      Number(total),
     ]);
+    const transaksiId = result.lastID;
+
+    for (const item of items) {
+      // Simpan detail item
+      await dbRun(
+        "INSERT INTO detail_transaksi (transaksi_id, produk_id, nama_produk, harga_satuan, jumlah, subtotal) VALUES (?,?,?,?,?,?)",
+        [
+          transaksiId,
+          Number(item.id),
+          String(item.nama),
+          Number(item.harga),
+          Number(item.qty),
+          Number(item.subtotal),
+        ],
+      );
+      // Kurangi stok
+      await dbRun("UPDATE produk SET stok = stok - ? WHERE id = ?", [
+        Number(item.qty),
+        Number(item.id),
+      ]);
+    }
+
+    await dbRun("COMMIT");
+    return { success: true, transaksiId };
+  } catch (err) {
+    await dbRun("ROLLBACK");
+    throw err;
   }
-  return { success: true, transaksiId };
 });
 
 // [LAPORAN] Ambil data laporan

@@ -59,6 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
   K.el.displayKembali = document.getElementById("displayKembali");
 
   // --- Init modul ---
+  if (K.auth && typeof K.auth.initAuth === "function") {
+    K.auth.initAuth();
+  }
   K.cart.initSearch();
   K.product.initProduct();
   K.report.initReport();
@@ -116,6 +119,12 @@ document.addEventListener("DOMContentLoaded", () => {
   setupModal("btnMenuStok", "modalStok", "closeStokHeader");
 
   // Close buttons
+  const btnCloseSettingTop = document.getElementById("btnCloseSettingTop");
+  if (btnCloseSettingTop) {
+    btnCloseSettingTop.onclick = () => {
+      document.getElementById("modalSetting").style.display = "none";
+    };
+  }
   document.getElementById("btnTutupLaporan").onclick = () =>
     (document.getElementById("modalLaporan").style.display = "none");
   document.getElementById("btnTutupNotif").onclick = () =>

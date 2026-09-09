@@ -84,18 +84,20 @@ KasirSembako/
 │                          └── Jam digital
 │
 ├── js/                  → Modul bisnis (IIFE, window.KasirPro namespace)
+│   ├── auth.js          → Autentikasi pengguna, sesi kasir/admin, ganti password
 │   ├── cart.js          → Keranjang, pembayaran, struk, pencarian produk
 │   ├── product.js       → CRUD produk, manajemen stok
 │   └── report.js        → Laporan, filter tanggal, ekspor CSV, detail transaksi
 │
-├── styles.css           → Seluruh CSS (diekstrak dari index.html)
+├── styles.css           → Seluruh CSS (light + dark + print media + login card)
 │
-├── index.html           → UI tunggal (693 baris, no inline CSS)
-│                          ├── Sidebar navigasi
+├── index.html           → UI tunggal (no inline CSS)
+│                          ├── Layar Login (sebelum dashboard terbuka)
+│                          ├── Sidebar navigasi + Profil User & Tombol Logout
 │                          ├── Dashboard POS (search + cart + checkout)
 │                          ├── Modal: Laporan Penjualan
-│                          ├── Modal: Detail Transaksi (BARU)
-│                          ├── Modal: Pengaturan (dark mode, identitas toko, shortcut info, reset DB)
+│                          ├── Modal: Detail Transaksi
+│                          ├── Modal: Pengaturan (dark mode, toko, ganti password, shortcut, reset DB)
 │                          ├── Modal: Konfirmasi Hapus
 │                          ├── Modal: Form Produk (tambah/edit)
 │                          ├── Modal: Manajemen Stok
@@ -116,6 +118,8 @@ KasirSembako/
 
 | Channel | Arah | Parameter | Return |
 |---------|------|-----------|--------|
+| `auth:login` | renderer→main | `{username, password}` | `{success, user?, message?}` |
+| `auth:ganti-password` | renderer→main | `{id, passwordLama, passwordBaru}` | `{success, message}` |
 | `db:search-produk` | renderer→main | `keyword: string` | `Array<{id, nama, harga, stok}>` |
 | `db:get-all-produk` | renderer→main | `keyword: string` | `Array<{id, nama, harga, stok}>` |
 | `db:insert-produk` | renderer→main | `{nama, harga, stok}` | `{lastID, changes}` |
@@ -135,6 +139,15 @@ KasirSembako/
 **Lokasi file DB:** `%APPDATA%/KasirProData/kasirpro.db`
 
 ```sql
+-- Tabel Pengguna (Autentikasi Kasir & Admin)
+CREATE TABLE IF NOT EXISTS pengguna (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    username     TEXT UNIQUE NOT NULL,
+    password     TEXT NOT NULL,
+    role         TEXT NOT NULL DEFAULT 'admin',
+    nama_lengkap TEXT NOT NULL
+);
+
 -- Tabel Produk
 CREATE TABLE IF NOT EXISTS produk (
     id    INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -295,4 +308,4 @@ npm run make
 
 ---
 
-*Terakhir diperbarui: 5 September 2026*
+*Terakhir diperbarui: 9 September 2026*
